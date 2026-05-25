@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}فرآیند یار{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #1a73e8; --bg: #f0f7ff; --text: #333; }
+        body { font-family: 'Vazirmatn', sans-serif; background: var(--bg); padding: 20px; color: var(--text); }
+        .container { background: #fff; padding: 30px; border-radius: 16px; max-width: 1450px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: var(--primary); }
+        h3 { text-align: center;  color: rgb(20, 20, 20); }
+        h2 { text-align: right;  color: rgb(199, 33, 33); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px; }
+        label { font-weight: 600; display: block; margin-bottom: 5px; }
+        input { font-family: 'Vazirmatn', sans-serif; width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { font-family: 'Vazirmatn', sans-serif; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; background: var(--primary); color: #fff; font-weight: 700; transition: 0.3s; }
+        button:hover { filter: brightness(1.1); }
+        .list-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; align-items: center; background: #f9f9f9; margin-bottom: 5px; border-radius: 6px; }
+
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.97em; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: right; vertical-align: top; }
+        th { background: #1a73e8; color: white; }
+        tr:nth-child(even) { background: #f8fbff; }
+
+        .group { margin-bottom: 28px; }
+        .group-header {
+            background: #1a73e8;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 10px 10px 0 0;
+            font-size: 1.35em;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+        {% block content %}{% endblock %}
+        <h2>شرکت پیشرو ارتباطات ویرا ** تماس با پشتیبانی و توسعه :09192558024</h2>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
