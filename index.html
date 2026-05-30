@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فرآیند یار | ماشین حساب محاسبات ترکیب</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-bg: #f8f9fa;
+            --danger-color: #d32f2f;
+            --success-color: #4CAF50;
+            --border-color: #dee2e6;
+            --text-color: #202124;
+        }
+
+        body {
+            font-family: Vazirmatn, sans-serif;
+            background-color: #f0f2f5;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-color);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        input, select, textarea {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button.primary { background-color: var(--primary-color); color: white; }
+        button.danger { background-color: var(--danger-color); color: white; }
+        button.success { background-color: var(--success-color); color: white; }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--secondary-bg);
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: var(--secondary-bg);
+            color: var(--primary-color);
+        }
+
+        .flute-col, .composition-col {
+            background: linear-gradient(to bottom, #e3f2fd, #fff);
+            border-left: 3px solid var(--primary-color);
+            font-weight: bold;
+        }
+
+        #widthsList {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e7f3ff;
+            border-radius: 4px;
+            min-height: 20px;
+        }
+
+        .sheet-item-tag {
+            display: inline-block;
+            background: #fff;
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 20px;
+            border: 1px solid var(--primary-color);
+        }
+
+        .sheet-item-tag button {
+            padding: 2px 5px;
+            margin-right: 5px;
+            font-size: 0.8em;
+        }
+
+        /* Print Styles */
+        @media print {
+            body * { visibility: hidden; }
+            #printWrapper, #printWrapper * { visibility: visible; }
+            #printWrapper {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                display: block !important;
+            }
+            @page { size: A4 landscape; margin: 12mm; }
+            table { table-layout: fixed; width: 100%; }
+            th, td { word-break: break-word; overflow-wrap: anywhere; }
+        }
+
+        #printWrapper { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>فرآیند یار | ماشین حساب محاسبات ترکیب</h1>
+        </header>
+
+        <section id="input-section">
+            <h2>۱. ورود مشخصات شیت</h2>
+            <form id="sheet-form">
+                <div class="grid">
+                    <div class="form-group">
+                        <label>طول (mm):</label>
+                        <input type="number" id="len" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>عرض (mm):</label>
+                        <input type="number" id="width" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>تعداد (qty):</label>
+                        <input type="number" id="qty" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>فلوت:</label>
+                        <select id="flute" required>
+                            <option value="">انتخاب کنید...</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="E">E</option>
+                            <option value="BC">BC</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>ترکیب مواد:</label>
+                        <select id="composition" required>
+                            <option value="">انتخاب کنید...</option>
+                            <option value="K125/T125/K125">K125/T125/K125</option>
+                            <option value="K125/S125/K125">K125/S125/K125</option>
+                            <option value="T125/S125/T125">T125/S125/T125</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" id="add-sheet-btn" class="success">افزودن به لیست</button>
+            </form>
+
+            <div id="sheets-list-container">
+                <h3>لیست شیت‌ها</h3>
+                <div id="widthsList"></div>
+                <table id="specsTable"></table>
+            </div>
+        </section>
+
+        <section id="settings-section">
+            <h2>۲. تنظیمات محاسبات</h2>
+            <div class="grid">
+                <div class="form-group">
+                    <label>عرض‌های رول موجود (کاما جدا):</label>
+                    <input type="text" id="paperWidths" value="2000, 2100, 2200, 2300, 2400">
+                </div>
+                <div class="form-group">
+                    <label>حداکثر تعداد برش:</label>
+                    <input type="number" id="maxCutCount" value="4">
+                </div>
+                <div class="form-group">
+                    <label>حداقل پرت (mm):</label>
+                    <input type="number" id="minMargin" value="0">
+                </div>
+                <div class="form-group">
+                    <label>حداکثر پرت (mm):</label>
+                    <input type="number" id="maxMargin" value="70">
+                </div>
+            </div>
+            <div class="actions">
+                <button id="calculate-btn" class="primary">محاسبه ترکیب‌های بهینه</button>
+                <button id="save-local">ذخیره در مرورگر</button>
+                <button id="load-local">بارگذاری از مرورگر</button>
+                <button id="clear-local" class="danger">پاک کردن تاریخچه</button>
+                <button id="export-json">خروجی JSON</button>
+            </div>
+        </section>
+
+        <section id="results-section">
+            <h2>۳. نتایج محاسبات</h2>
+            <div id="results-container">
+                <p>پس از کلیک بر روی دکمه محاسبه، نتایج در اینجا ظاهر می‌شوند.</p>
+            </div>
+        </section>
+
+        <section id="purchase-section">
+            <h2>۴. فرم نهایی خرید</h2>
+            <table id="purchaseTable">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">حذف</th>
+                        <th>شرح ترکیب و مقادیر تولید</th>
+                        <th>توضیحات اختصاصی</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div style="margin-top: 20px;">
+                <button id="print-btn" class="primary">آماده‌سازی و چاپ پیش‌فاکتور</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="printWrapper">
+        <h2 style="text-align: center;">لیست نهایی سفارش تولید (فرآیند یار)</h2>
+        <table id="printTable"></table>
+    </div>
+
+    <script>
+        // State Management
+        let sheetItems = [];
+        let allValid = [];
+        let editingIndex = null;
+
+        const STORAGE_KEY = 'combinationAppData';
+
+        // Elements
+        const sheetForm = document.getElementById('sheet-form');
+        const resultsContainer = document.getElementById('results-container');
+        const purchaseTableBody = document.querySelector('#purchaseTable tbody');
+
+        // Initial Load
+        window.addEventListener('load', () => {
+            loadFromLocal();
+        });
+
+        // Form Submission
+        sheetForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newItem = {
+                len: parseInt(document.getElementById('len').value),
+                width: parseInt(document.getElementById('width').value),
+                qty: parseInt(document.getElementById('qty').value),
+                flute: document.getElementById('flute').value,
+                composition: document.getElementById('composition').value
+            };
+
+            if (editingIndex !== null) {
+                sheetItems[editingIndex] = newItem;
+                editingIndex = null;
+                document.getElementById('add-sheet-btn').textContent = 'افزودن به لیست';
+            } else {
+                sheetItems.push(newItem);
+            }
+
+            sheetForm.reset();
+            renderSheetItems();
+        });
+
+        function renderSheetItems() {
+            const listDiv = document.getElementById('widthsList');
+            const specsTable = document.getElementById('specsTable');
+            listDiv.innerHTML = '';
+
+            sheetItems.forEach((item, index) => {
+                const tag = document.createElement('span');
+                tag.className = 'sheet-item-tag';
+                tag.innerHTML = `
+                    ${item.width}x${item.len} (${item.qty})
+                    <button onclick="editSheet(${index})" class="success">ویرایش</button>
+                    <button onclick="deleteSheet(${index})" class="danger">حذف</button>
+                `;
+                listDiv.appendChild(tag);
+            });
+
+            if (sheetItems.length > 0) {
+                let html = '<thead><tr><th>ویژگی / قطعه</th>';
+                sheetItems.forEach((_, i) => html += `<th>قطعه ${i+1}</th>`);
+                html += '</tr></thead><tbody>';
+
+                const rows = [
+                    { label: 'طول (mm)', key: 'len' },
+                    { label: 'عرض (mm)', key: 'width' },
+                    { label: 'تعداد (qty)', key: 'qty' },
+                    { label: 'فلوت', key: 'flute' },
+                    { label: 'ترکیب', key: 'composition' }
+                ];
+
+                rows.forEach(row => {
+                    html += `<tr><td><strong>${row.label}</strong></td>`;
+                    sheetItems.forEach(item => {
+                        let className = '';
+                        if (row.key === 'flute') className = 'flute-col';
+                        if (row.key === 'composition') className = 'composition-col';
+                        html += `<td class="${className}">${item[row.key]}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                html += '</tbody>';
+                specsTable.innerHTML = html;
+            } else {
+                specsTable.innerHTML = '';
+            }
+        }
+
+        window.editSheet = (index) => {
+            const item = sheetItems[index];
+            document.getElementById('len').value = item.len;
+            document.getElementById('width').value = item.width;
+            document.getElementById('qty').value = item.qty;
+            document.getElementById('flute').value = item.flute;
+            document.getElementById('composition').value = item.composition;
+            editingIndex = index;
+            document.getElementById('add-sheet-btn').textContent = 'به‌روزرسانی ردیف';
+        };
+
+        window.deleteSheet = (index) => {
+            sheetItems.splice(index, 1);
+            renderSheetItems();
+        };
+
+        // Calculations
+        document.getElementById('calculate-btn').addEventListener('click', calculateAll);
+
+        function calculateAll() {
+            if (sheetItems.length === 0) {
+                alert('لطفاً ابتدا حداقل یک شیت وارد کنید.');
+                return;
+            }
+
+            const pWidths = document.getElementById('paperWidths').value
+                .split(',')
+                .map(v => parseInt(v.trim()))
+                .filter(v => !isNaN(v))
+                .sort((a, b) => a - b);
+
+            const maxCuts = parseInt(document.getElementById('maxCutCount').value);
+            const minM = parseInt(document.getElementById('minMargin').value);
+            const maxM = parseInt(document.getElementById('maxMargin').value);
+
+            allValid = [];
+
+            // 1. Single Cut
+            sheetItems.forEach((item, i) => {
+                for (let c = 1; c <= maxCuts; c++) {
+                    const total = item.width * c;
+                    if (total > pWidths[pWidths.length - 1] + maxM) break;
+
+                    pWidths.forEach(pw => {
+                        const margin = pw - total;
+                        if (margin >= minM && margin <= maxM) {
+                            const counts = new Array(sheetItems.length).fill(0);
+                            counts[i] = c;
+                            allValid.push({ pw, margin, counts });
+                        }
+                    });
+                }
+            });
+
+            // 2. Double Cut
+            for (let i = 0; i < sheetItems.length; i++) {
+                for (let j = i + 1; j < sheetItems.length; j++) {
+                    const s1 = sheetItems[i];
+                    const s2 = sheetItems[j];
+
+                    if (s1.flute === s2.flute && s1.composition === s2.composition) {
+                        for (let c1 = 1; c1 < maxCuts; c1++) {
+                            for (let c2 = 1; c1 + c2 <= maxCuts; c2++) {
+                                const total = (s1.width * c1) + (s2.width * c2);
+                                if (total > pWidths[pWidths.length - 1] + maxM) break;
+
+                                pWidths.forEach(pw => {
+                                    const margin = pw - total;
+                                    if (margin >= minM && margin <= maxM) {
+                                        const counts = new Array(sheetItems.length).fill(0);
+                                        counts[i] = c1;
+                                        counts[j] = c2;
+                                        allValid.push({ pw, margin, counts });
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Sort results
+            allValid.sort((a, b) => a.pw - b.pw || a.margin - b.margin);
+            renderResults();
+        }
+
+        function renderResults() {
+            if (allValid.length === 0) {
+                resultsContainer.innerHTML = '<p>هیچ ترکیبی با تنظیمات فعلی پیدا نشد.</p>';
+                return;
+            }
+
+            let html = `<table><thead><tr>
+                <th>عرض رول</th>
+                <th>پرت (mm)</th>
+                <th>ترکیب چیدمان</th>
+                <th>تولید / باقیمانده</th>
+                <th>عملیات</th>
+            </tr></thead><tbody>`;
+
+            allValid.forEach((res, idx) => {
+                const details = [];
+                const productionInfo = [];
+
+                // Bottleneck Calculation logic
+                const activeIndices = res.counts.map((c, i) => c > 0 ? i : -1).filter(i => i !== -1);
+
+                if (activeIndices.length === 1) {
+                    const i = activeIndices[0];
+                    const cuts = res.counts[i];
+                    const item = sheetItems[i];
+                    const produced = Math.floor(item.qty / cuts) * cuts;
+                    const remaining = item.qty - produced;
+                    details.push(`${cuts} تا ${item.width} (ق ${i+1})`);
+                    productionInfo.push(`ق${i+1}: ${produced} ت (باقیمانده: ${remaining})`);
+                } else if (activeIndices.length === 2) {
+                    const i = activeIndices[0];
+                    const j = activeIndices[1];
+                    const c1 = res.counts[i];
+                    const c2 = res.counts[j];
+                    const s1 = sheetItems[i];
+                    const s2 = sheetItems[j];
+
+                    const meter1 = Math.floor((Math.floor(s1.qty / c1) * s1.len) / 1000);
+                    const meter2 = Math.floor((Math.floor(s2.qty / c2) * s2.len) / 1000);
+
+                    let prod1, prod2;
+                    if (meter1 <= meter2) {
+                        prod1 = Math.floor(s1.qty / c1) * c1;
+                        prod2 = Math.floor((meter1 * 1000 / s2.len) * c2);
+                    } else {
+                        prod2 = Math.floor(s2.qty / c2) * c2;
+                        prod1 = Math.floor((meter2 * 1000 / s1.len) * c1);
+                    }
+
+                    details.push(`${c1} تا ${s1.width} (ق ${i+1})`, `${c2} تا ${s2.width} (ق ${j+1})`);
+                    productionInfo.push(`ق${i+1}: ${prod1} ت`, `ق${j+1}: ${prod2} ت`);
+                }
+
+                html += `<tr>
+                    <td><strong>${res.pw}</strong></td>
+                    <td>${res.margin}</td>
+                    <td>${details.join(' + ')}</td>
+                    <td style="font-size: 0.85em;">${productionInfo.join(' | ')}</td>
+                    <td><button onclick="addToPurchase(${idx})" class="success">انتخاب</button></td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            resultsContainer.innerHTML = html;
+        }
+
+        window.addToPurchase = (idx) => {
+            const res = allValid[idx];
+            const activeIndices = res.counts.map((c, i) => c > 0 ? i : -1).filter(i => i !== -1);
+
+            let description = `عرض رول ${res.pw} - پرت ${res.margin} mm\n`;
+
+            // Re-calculate for description
+            if (activeIndices.length === 1) {
+                const i = activeIndices[0];
+                const item = sheetItems[i];
+                const cuts = res.counts[i];
+                const produced = Math.floor(item.qty / cuts) * cuts;
+                description += `ترکیب: ${cuts} عدد از عرض ${item.width} (${item.flute} - ${item.composition})\nتولید: ${produced} عدد شیت قطعه ${i+1}`;
+            } else {
+                const i = activeIndices[0], j = activeIndices[1];
+                const s1 = sheetItems[i], s2 = sheetItems[j];
+                const c1 = res.counts[i], c2 = res.counts[j];
+                const meter1 = Math.floor((Math.floor(s1.qty / c1) * s1.len) / 1000);
+                const meter2 = Math.floor((Math.floor(s2.qty / c2) * s2.len) / 1000);
+                let prod1, prod2, finalMeter;
+                if (meter1 <= meter2) {
+                    prod1 = Math.floor(s1.qty / c1) * c1;
+                    prod2 = Math.floor((meter1 * 1000 / s2.len) * c2);
+                    finalMeter = meter1;
+                } else {
+                    prod2 = Math.floor(s2.qty / c2) * c2;
+                    prod1 = Math.floor((meter2 * 1000 / s1.len) * c1);
+                    finalMeter = meter2;
+                }
+                description += `ترکیب: ${c1} تا ${s1.width} + ${c2} تا ${s2.width} (${s1.flute} - ${s1.composition})\n`;
+                description += `تولید: ${prod1} از ق${i+1} و ${prod2} از ق${j+1} (متراژ کل: ${finalMeter} متر)`;
+            }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><button onclick="this.closest('tr').remove()" class="danger">X</button></td>
+                <td style="white-space: pre-line; text-align: right;">${description}</td>
+                <td><textarea style="width: 90%; height: 60px;"></textarea></td>
+            `;
+            purchaseTableBody.appendChild(tr);
+            tr.scrollIntoView({ behavior: 'smooth' });
+        };
+
+        // LocalStorage & Actions
+        document.getElementById('save-local').addEventListener('click', () => {
+            const purchaseRows = [];
+            purchaseTableBody.querySelectorAll('tr').forEach(tr => {
+                purchaseRows.push({
+                    description: tr.cells[1].innerText,
+                    note: tr.querySelector('textarea').value
+                });
+            });
+
+            const data = {
+                sheetItems,
+                allValid,
+                purchaseRows,
+                settings: {
+                    paperWidths: document.getElementById('paperWidths').value,
+                    maxCutCount: document.getElementById('maxCutCount').value,
+                    minMargin: document.getElementById('minMargin').value,
+                    maxMargin: document.getElementById('maxMargin').value
+                }
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            alert('اطلاعات با موفقیت ذخیره شد.');
+        });
+
+        function loadFromLocal() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                const data = JSON.parse(stored);
+                sheetItems = data.sheetItems || [];
+                allValid = data.allValid || [];
+
+                if (data.settings) {
+                    document.getElementById('paperWidths').value = data.settings.paperWidths;
+                    document.getElementById('maxCutCount').value = data.settings.maxCutCount;
+                    document.getElementById('minMargin').value = data.settings.minMargin;
+                    document.getElementById('maxMargin').value = data.settings.maxMargin;
+                }
+
+                renderSheetItems();
+                renderResults();
+
+                if (data.purchaseRows) {
+                    purchaseTableBody.innerHTML = '';
+                    data.purchaseRows.forEach(row => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><button onclick="this.closest('tr').remove()" class="danger">X</button></td>
+                            <td style="white-space: pre-line; text-align: right;">${row.description}</td>
+                            <td><textarea style="width: 90%; height: 60px;">${row.note}</textarea></td>
+                        `;
+                        purchaseTableBody.appendChild(tr);
+                    });
+                }
+            }
+        }
+
+        document.getElementById('load-local').addEventListener('click', loadFromLocal);
+
+        document.getElementById('clear-local').addEventListener('click', () => {
+            if (confirm('آیا از پاک کردن کامل تاریخچه اطمینان دارید؟')) {
+                localStorage.removeItem(STORAGE_KEY);
+                sheetItems = [];
+                allValid = [];
+                renderSheetItems();
+                renderResults();
+                purchaseTableBody.innerHTML = '';
+            }
+        });
+
+        document.getElementById('export-json').addEventListener('click', () => {
+            const data = { sheetItems, allValid, date: new Date().toISOString() };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `process-yar-export-${new Date().getTime()}.json`;
+            a.click();
+        });
+
+        // Print Logic
+        document.getElementById('print-btn').addEventListener('click', () => {
+            const printTable = document.getElementById('printTable');
+            const rows = purchaseTableBody.querySelectorAll('tr');
+
+            if (rows.length === 0) {
+                alert('ابتدا ترکیب‌های مورد نظر را به جدول خرید اضافه کنید.');
+                return;
+            }
+
+            let html = `<thead><tr>
+                <th style="width: 8%">ردیف</th>
+                <th style="width: 50%">جزئیات ترکیب و تولید</th>
+                <th style="width: 42%">توضیحات تکمیلی</th>
+            </tr></thead><tbody>`;
+
+            rows.forEach((row, i) => {
+                const desc = row.cells[1].innerText;
+                const note = row.querySelector('textarea').value;
+                html += `<tr>
+                    <td>${i + 1}</td>
+                    <td style="text-align: right; white-space: pre-line;">${desc}</td>
+                    <td style="text-align: right; white-space: pre-line;">${note}</td>
+                </tr>`;
+            });
+            html += '</tbody>';
+            printTable.innerHTML = html;
+
+            setTimeout(() => {
+                window.print();
+            }, 250);
+        });
+    </script>
+</body>
+</html>
