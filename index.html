@@ -186,6 +186,18 @@
                         <input type="number" id="qty" required min="1">
                     </div>
                     <div class="form-group">
+                        <label>ارتفاع خط (mm):</label>
+                        <input type="number" id="lineHeight" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>درب بالا (mm):</label>
+                        <input type="number" id="topFlap" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>درب پایین (mm):</label>
+                        <input type="number" id="bottomFlap" min="0">
+                    </div>
+                    <div class="form-group">
                         <label>فلوت:</label>
                         <select id="flute" required>
                             <option value="">انتخاب کنید...</option>
@@ -328,6 +340,9 @@
                 len: parseInt(document.getElementById('len').value),
                 width: parseInt(document.getElementById('width').value),
                 qty: parseInt(document.getElementById('qty').value),
+                lineHeight: document.getElementById('lineHeight').value || '',
+                topFlap: document.getElementById('topFlap').value || '',
+                bottomFlap: document.getElementById('bottomFlap').value || '',
                 flute: document.getElementById('flute').value,
                 composition: document.getElementById('composition').value
             };
@@ -362,12 +377,19 @@
 
             if (sheetItems.length > 0) {
                 let html = '<thead><tr><th>ویژگی / قطعه</th>';
-                sheetItems.forEach((_, i) => html += `<th>قطعه ${i+1}</th>`);
+                sheetItems.forEach((_, i) => {
+                    const item = sheetItems[i];
+                    const label = `${item.len}*${item.width}${item.lineHeight ? '*' + item.lineHeight : ''}`;
+                    html += `<th>${label}</th>`;
+                });
                 html += '</tr></thead><tbody>';
 
                 const rows = [
                     { label: 'طول (mm)', key: 'len' },
                     { label: 'عرض (mm)', key: 'width' },
+                    { label: 'ارتفاع خط', key: 'lineHeight' },
+                    { label: 'درب بالا', key: 'topFlap' },
+                    { label: 'درب پایین', key: 'bottomFlap' },
                     { label: 'تعداد (qty)', key: 'qty' },
                     { label: 'فلوت', key: 'flute' },
                     { label: 'ترکیب', key: 'composition' }
@@ -395,6 +417,9 @@
             document.getElementById('len').value = item.len;
             document.getElementById('width').value = item.width;
             document.getElementById('qty').value = item.qty;
+            document.getElementById('lineHeight').value = item.lineHeight || '';
+            document.getElementById('topFlap').value = item.topFlap || '';
+            document.getElementById('bottomFlap').value = item.bottomFlap || '';
             document.getElementById('flute').value = item.flute;
             document.getElementById('composition').value = item.composition;
             editingIndex = index;
@@ -503,8 +528,9 @@
                     const item = sheetItems[i];
                     const produced = Math.floor(item.qty / cuts) * cuts;
                     const remaining = item.qty - produced;
-                    details.push(`${cuts} تا ${item.width} (ق ${i+1})`);
-                    productionInfo.push(`ق${i+1}: ${produced} ت (باقیمانده: ${remaining})`);
+                    const label = `${item.len}*${item.width}${item.lineHeight ? '*' + item.lineHeight : ''}`;
+                    details.push(`${cuts} تا ${item.width} (${label})`);
+                    productionInfo.push(`${label}: ${produced} ت (باقی: ${remaining})`);
                 } else if (activeIndices.length === 2) {
                     const i = activeIndices[0];
                     const j = activeIndices[1];
@@ -525,8 +551,10 @@
                         prod1 = Math.floor((meter2 * 1000 / s1.len) * c1);
                     }
 
-                    details.push(`${c1} تا ${s1.width} (ق ${i+1})`, `${c2} تا ${s2.width} (ق ${j+1})`);
-                    productionInfo.push(`ق${i+1}: ${prod1} ت`, `ق${j+1}: ${prod2} ت`);
+                    const label1 = `${s1.len}*${s1.width}${s1.lineHeight ? '*' + s1.lineHeight : ''}`;
+                    const label2 = `${s2.len}*${s2.width}${s2.lineHeight ? '*' + s2.lineHeight : ''}`;
+                    details.push(`${c1} تا ${s1.width} (${label1})`, `${c2} تا ${s2.width} (${label2})`);
+                    productionInfo.push(`${label1}: ${prod1} ت`, `${label2}: ${prod2} ت`);
                 }
 
                 html += `<tr>
@@ -554,11 +582,14 @@
                 const item = sheetItems[i];
                 const cuts = res.counts[i];
                 const produced = Math.floor(item.qty / cuts) * cuts;
-                description += `ترکیب: ${cuts} عدد از عرض ${item.width} (${item.flute} - ${item.composition})\nتولید: ${produced} عدد شیت قطعه ${i+1}`;
+                const label = `${item.len}*${item.width}${item.lineHeight ? '*' + item.lineHeight : ''}`;
+                description += `ترکیب: ${cuts} عدد از عرض ${item.width} (${item.flute} - ${item.composition})\nتولید: ${produced} عدد شیت (${label})`;
             } else {
                 const i = activeIndices[0], j = activeIndices[1];
                 const s1 = sheetItems[i], s2 = sheetItems[j];
                 const c1 = res.counts[i], c2 = res.counts[j];
+                const label1 = `${s1.len}*${s1.width}${s1.lineHeight ? '*' + s1.lineHeight : ''}`;
+                const label2 = `${s2.len}*${s2.width}${s2.lineHeight ? '*' + s2.lineHeight : ''}`;
                 const meter1 = Math.floor((Math.floor(s1.qty / c1) * s1.len) / 1000);
                 const meter2 = Math.floor((Math.floor(s2.qty / c2) * s2.len) / 1000);
                 let prod1, prod2, finalMeter;
@@ -572,7 +603,7 @@
                     finalMeter = meter2;
                 }
                 description += `ترکیب: ${c1} تا ${s1.width} + ${c2} تا ${s2.width} (${s1.flute} - ${s1.composition})\n`;
-                description += `تولید: ${prod1} از ق${i+1} و ${prod2} از ق${j+1} (متراژ کل: ${finalMeter} متر)`;
+                description += `تولید: ${prod1} از (${label1}) و ${prod2} از (${label2}) (متراژ: ${finalMeter} م)`;
             }
 
             const tr = document.createElement('tr');
